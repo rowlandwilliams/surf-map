@@ -2,7 +2,7 @@ import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 async function main() {
   const surfspot = await prisma.surfSpot.create({
-    data: { name: "Suh", latitude: 41.44, longitude: 22.3 },
+    data: { name: "Watersplash", latitude: 49.210967, longitude: -2.224461 },
   });
   console.log(surfspot);
 }
