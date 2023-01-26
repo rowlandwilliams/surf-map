@@ -1,13 +1,12 @@
 import { type NextPage } from "next";
 import Head from "next/head";
 import Map, { Marker } from "react-map-gl";
-
 import { api } from "../utils/api";
 
 const Home: NextPage = () => {
   const surfSpots = api.example.getAll.useQuery();
 
-  console.log(process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN);
+  console.log(surfSpots.data);
   return (
     <>
       <Head>
@@ -17,11 +16,26 @@ const Home: NextPage = () => {
       </Head>
       <main className="flex h-screen text-gray-400">
         <Map
-          mapStyle="mapbox://styles/mapbox/dark-v9"
+          mapStyle="mapbox://styles/mapbox/navigation-night-v1"
           mapboxAccessToken={process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN}
+          viewState={{ latitude: 49.2, longitude: -2.22, zoom: 5 }}
         >
-          <Marker longitude={-100} latitude={40} anchor="bottom" />
+          {surfSpots &&
+            surfSpots.data?.map((spot) => (
+              <Marker
+                longitude={spot.longitude}
+                latitude={spot.latitude}
+                key={spot.name}
+              >
+                <span role="img" aria-label="push-pin">
+                  📌
+                </span>
+              </Marker>
+            ))}
         </Map>
+        <section className="roun absolute top-4 left-4 rounded-sm border border-gray-400 bg-indigo-900 p-8 text-white">
+          Add surf spot
+        </section>
       </main>
     </>
   );
