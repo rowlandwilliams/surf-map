@@ -1,14 +1,15 @@
 import { type NextPage } from "next";
 import Head from "next/head";
-import Image from "next/image";
 import { useState } from "react";
 import Map from "react-map-gl";
+import { AddSurfSpotPopUp } from "../components/AddSurfSpotPopUp/AddSurfSpotPopUp";
 import { MapController } from "../components/MapController/MapController";
-import { MapMarker } from "../components/MapMarker/MapMarker";
+import { MapMarkers } from "../components/MapMarkers/MapMarkers";
 import { api } from "../utils/api";
 
 const Home: NextPage = () => {
-  const [addMode, setAddMode] = useState(false);
+  const [addMode, setAddMode] = useState(true);
+  const [addPopUp, setAddPopUp] = useState(false);
   const [addSpotCoords, setAddSpotCoords] = useState({ x: 0, y: 0 });
 
   const handleAddButtonClick = () =>
@@ -16,6 +17,8 @@ const Home: NextPage = () => {
   const cursor = addMode ? "cell" : "pointer";
 
   const surfSpots = api.example.getAll.useQuery();
+
+  const closeAddSurfSpotPopUp = () => setAddPopUp(false);
 
   return (
     <>
@@ -36,39 +39,24 @@ const Home: NextPage = () => {
           cursor={cursor}
           dragPan={!addMode}
           onClick={(info) => {
-            if (addMode) {
+            if (addMode && !addPopUp) {
+              setAddPopUp(true);
               setAddSpotCoords({ x: info.point.x, y: info.point.y });
             }
           }}
         >
-          {surfSpots &&
-            surfSpots.data?.map((surfSpot) => (
-              <MapMarker surfSpot={surfSpot} key={surfSpot.name} />
-            ))}
+          {surfSpots.data && <MapMarkers surfSpots={surfSpots.data} />}
         </Map>
         <MapController
           addMode={addMode}
           handleAddButtonClick={handleAddButtonClick}
         />
-        <div
-          className="absolute -translate-y-full -translate-x-1/2 rounded-md bg-white p-4 text-black transition-all duration-300"
-          style={{ top: addSpotCoords.y, left: addSpotCoords.x }}
-        >
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              console.log("suuuh");
-            }}
-          >
-            <button
-              type="submit"
-              className="flex items-center gap-x-2 rounded-md bg-indigo-600 p-4 font-medium text-white hover:bg-opacity-80"
-            >
-              <Image src="add.svg" width={24} height={24} alt="add" /> Add Surf
-              Spot
-            </button>{" "}
-          </form>
-        </div>
+        {addPopUp && (
+          <AddSurfSpotPopUp
+            addSpotCoords={addSpotCoords}
+            closeAddSurfSpotPopUp={closeAddSurfSpotPopUp}
+          />
+        )}
       </main>
     </>
   );
