@@ -10,6 +10,7 @@ datasource db {
 model SurfSpot {
   id        String @id @default(cuid())
   name      String
+  country   String @default("UK")
   latitude  Float
   longitude Float
 }

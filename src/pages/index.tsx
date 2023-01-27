@@ -10,7 +10,12 @@ import { api } from "../utils/api";
 const Home: NextPage = () => {
   const [addMode, setAddMode] = useState(true);
   const [addPopUp, setAddPopUp] = useState(false);
-  const [addSpotCoords, setAddSpotCoords] = useState({ x: 0, y: 0 });
+  const [addSpotCoords, setAddSpotCoords] = useState({
+    x: 0,
+    y: 0,
+    latitude: 0,
+    longitude: 0,
+  });
 
   const handleAddButtonClick = () =>
     addMode ? setAddMode(false) : setAddMode(true);
@@ -41,7 +46,12 @@ const Home: NextPage = () => {
           onClick={(info) => {
             if (addMode && !addPopUp) {
               setAddPopUp(true);
-              setAddSpotCoords({ x: info.point.x, y: info.point.y });
+              setAddSpotCoords({
+                x: info.point.x,
+                y: info.point.y,
+                latitude: info.lngLat.lat,
+                longitude: info.lngLat.lng,
+              });
             }
           }}
         >

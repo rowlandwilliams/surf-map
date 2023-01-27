@@ -1,10 +1,11 @@
 import type { FormEvent } from "react";
 import { useState } from "react";
+import { api } from "../../utils/api";
 import { AddSurfSpotPopUpFormInput } from "./AddSurfSpotPopUpFormInput/AddSurfSpotPopUpFormInput";
 const yPadding = 20;
 
 interface Props {
-  addSpotCoords: { x: number; y: number };
+  addSpotCoords: { x: number; y: number; latitude: number; longitude: number };
   closeAddSurfSpotPopUp: () => void;
 }
 
@@ -12,18 +13,42 @@ export const AddSurfSpotPopUp = ({
   addSpotCoords,
   closeAddSurfSpotPopUp,
 }: Props) => {
+  const { x, y, latitude, longitude } = addSpotCoords;
   const [spotName, setSpotName] = useState("");
   const [spotCountry, setSpotCountry] = useState("");
 
+  const utils = api.useContext();
+  const saveSurfSpot = api.example.addSurfSpot.useMutation({
+    onMutate: async (newEntry) => {
+      await utils.example.getAll.cancel();
+      utils.example.getAll.setData(undefined, (prevEntries) => {
+        if (prevEntries) {
+          return [newEntry, ...prevEntries];
+        } else {
+          return [newEntry];
+        }
+      });
+    },
+    onSettled: async () => {
+      await utils.example.getAll.invalidate();
+    },
+  });
+
   const handleSave = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    saveSurfSpot.mutate({
+      name: spotName,
+      country: spotCountry,
+      latitude,
+      longitude,
+    });
     closeAddSurfSpotPopUp();
   };
 
   return (
     <section
       className="absolute -translate-y-full -translate-x-1/2 space-y-4 rounded-md bg-white p-8 text-gray-800 transition-all duration-300"
-      style={{ top: addSpotCoords.y - yPadding, left: addSpotCoords.x }}
+      style={{ top: y - yPadding, left: x }}
     >
       <h1 className="font-medium ">Add Surf Spot</h1>
       <form onSubmit={(e) => handleSave(e)}>
