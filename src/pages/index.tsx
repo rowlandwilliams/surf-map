@@ -17,13 +17,32 @@ const Home: NextPage = () => {
     longitude: 0,
   });
 
-  const handleAddButtonClick = () =>
-    addMode ? setAddMode(false) : setAddMode(true);
-  const cursor = addMode ? "cell" : "pointer";
+  const handleMapClick = (info: mapboxgl.MapLayerMouseEvent) => {
+    if (addMode && !addPopUp) {
+      setAddPopUp(true);
+      setAddSpotCoords({
+        x: info.point.x,
+        y: info.point.y,
+        latitude: info.lngLat.lat,
+        longitude: info.lngLat.lng,
+      });
+    }
+  };
 
-  const surfSpots = api.example.getAll.useQuery();
+  const handleAddButtonClick = () => {
+    if (addMode) {
+      setAddMode(false);
+      setAddPopUp(false);
+    } else {
+      setAddMode(true);
+    }
+  };
 
   const closeAddSurfSpotPopUp = () => setAddPopUp(false);
+
+  const cursor = addMode ? "cell" : undefined;
+
+  const surfSpots = api.example.getAll.useQuery();
 
   return (
     <>
@@ -43,17 +62,7 @@ const Home: NextPage = () => {
           }}
           cursor={cursor}
           dragPan={!addMode}
-          onClick={(info) => {
-            if (addMode && !addPopUp) {
-              setAddPopUp(true);
-              setAddSpotCoords({
-                x: info.point.x,
-                y: info.point.y,
-                latitude: info.lngLat.lat,
-                longitude: info.lngLat.lng,
-              });
-            }
-          }}
+          onClick={(info) => handleMapClick(info)}
         >
           {surfSpots.data && <MapMarkers surfSpots={surfSpots.data} />}
         </Map>
